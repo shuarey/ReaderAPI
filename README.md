@@ -78,5 +78,3 @@ The API will be available at `https://localhost:5001` or `http://localhost:5000`
 ## Contributing
 
 Contributions are welcome! Please fork the repository and submit a pull request for any changes.
-
----
