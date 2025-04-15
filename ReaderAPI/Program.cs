@@ -5,7 +5,7 @@ using ReaderAPI.Infrastructure;
 using ReaderAPI.Middleware;
 using ReaderAPI.Services;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder ( args );
 
 builder.Services.AddControllers ( );
 builder.Services.AddEndpointsApiExplorer ( );
@@ -19,16 +19,18 @@ Log.Logger = new LoggerConfiguration ( )
 
 builder.Host.UseSerilog ( );
 
-//disabling default field validation. TODO: Build middleware to handle custom error response.
+// disabling default field validation. Endpoints will handle field validation on an individual level
+// TODO: Build middleware to handle custom error response.
 builder.Services.Configure<ApiBehaviorOptions> ( options =>
 {
     options.SuppressModelStateInvalidFilter = true;
 } );
 
-builder.Services.AddCors(options =>
+builder.Services.AddSingleton<ITypeResolver, TypeResolver> ( );
+builder.Services.AddCors ( options =>
 {
-    //using this just for dev purposes. Will eventually only accept calls from verified servers
-    options.AddPolicy("AllowAllOrigins",
+    // using this just for dev purposes. Will eventually only accept calls from verified servers
+    options.AddPolicy ( "AllowAllOrigins",
         builder =>
         {
             builder.AllowAnyOrigin ( )
@@ -42,7 +44,7 @@ builder.Services.AddScoped<AccountUserService> ( );
 
 var app = builder.Build ( );
 
-if (app.Environment.IsDevelopment ( ) )
+if ( app.Environment.IsDevelopment ( ) )
 {
     app.UseSwagger ( );
     app.UseSwaggerUI ( );
@@ -55,8 +57,8 @@ if (app.Environment.IsDevelopment ( ) )
 
 app.UseMiddleware<Logging> ( );
 
-//This is just for development purposes. Will eventually only allow calls from hosting server
-app.UseCors("AllowAllOrigins");
+// This is just for development purposes. Will eventually only allow calls from hosting server
+app.UseCors ( "AllowAllOrigins" );
 
 app.UseHttpsRedirection ( );
 

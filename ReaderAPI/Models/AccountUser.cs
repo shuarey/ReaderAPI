@@ -1,4 +1,5 @@
-﻿using static ReaderAPI.Models.BaseClasses;
+﻿using Newtonsoft.Json;
+using static ReaderAPI.Models.BaseClasses;
 
 namespace ReaderAPI.Models
 {
@@ -19,6 +20,7 @@ namespace ReaderAPI.Models
     public class AccountUserRequestBase
     {
         public string email { get; set; }
+        [JsonIgnore]
         public string password { get; set; }
     }
     public class AccountUserLoginPOSTRequest : AccountUserRequestBase { }

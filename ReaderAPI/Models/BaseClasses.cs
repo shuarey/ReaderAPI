@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Runtime.Serialization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ReaderAPI.Models
@@ -27,8 +28,12 @@ namespace ReaderAPI.Models
                 base.success = false;
                 base.message = errorMessage;
                 this.status = status;
+                this.status_message = status.ToString ( );
             }
+            [DataMember ( Order = 3 )]
             public HttpStatusCode status { get; set; }
+            [DataMember ( Order = 4 )]
+            public string status_message { get; set; }
         }
     }
 }

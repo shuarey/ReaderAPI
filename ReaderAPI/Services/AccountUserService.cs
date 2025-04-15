@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using Dapper;
 using ReaderAPI.Infrastructure;
+using ReaderAPI.Middleware;
 using ReaderAPI.Models;
 using static ReaderAPI.Models.BaseClasses;
 
@@ -8,7 +9,7 @@ namespace ReaderAPI.Services
 {
     public class AccountUserService : BaseService
     {
-        public AccountUserService ( IHttpContextAccessor context, IDatabaseConnection connection, ILogger<AccountUserService> logger ) : base ( context, connection, logger ) { }
+        public AccountUserService ( IHttpContextAccessor context, IDatabaseConnection connection, ILogger<AccountUserService> logger, ILoggerFactory loggerFactory ) : base ( context, connection, logger, loggerFactory ) { }
 
         static AccountUserService ( )
         {
@@ -35,6 +36,8 @@ namespace ReaderAPI.Services
 
         public BaseResponse LoginUser ( AccountUserLoginPOSTRequest request )
         {
+            //var logger = GetCustomLogger ( LoggingCategory.AccountUserLogin );
+
             AccountUser user = null;
             BasicErrorResponse errorResponse = null;
             try
@@ -44,6 +47,7 @@ namespace ReaderAPI.Services
                 if ( errorResponse != null )
                     return errorResponse;
 
+                request.password = null;
                 if ( user == null )
                     return new BasicErrorResponse ( "User not found.", HttpStatusCode.InternalServerError );
 
@@ -79,15 +83,13 @@ namespace ReaderAPI.Services
 
                     Connection.Execute ( query, parameters );
                 }
-                if ( errorResponse == null )
-                    LogInfo ( );
-                else
-                    LogError ( null, errorResponse.message );
             }
         }
 
         public BaseResponse RegisterAccountUser ( AccountUserRegisterPOSTRequest request )
         {
+            //GetCustomLogger ( LoggingCategory.AccountUserRegister );
+
             try
             {
                 BasicErrorResponse response = null;

@@ -1,18 +1,32 @@
 ﻿using System.Text.Json;
-
+using System.Text.Json.Serialization;
 namespace ReaderAPI.Utilities
 {
     public static class Utility
     {
-        public static string FormatJson ( string json )
+        public static string FormatJson ( object json, Type type = null )
         {
-            using var doc = JsonDocument.Parse ( json );
-            return JsonSerializer.Serialize ( doc, new JsonSerializerOptions { WriteIndented = true } );
-        }
+            if ( json is string jsonString )
+            {
+                // If the input is already a JSON string, format it
+                var jsonElement = JsonSerializer.Deserialize<JsonElement> ( jsonString );
+                return JsonSerializer.Serialize ( jsonElement, new JsonSerializerOptions 
+                { 
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault, 
+                    WriteIndented = true 
+                } );
+            }
+            else if ( json != null )
+            {
+                // If the input is an object, serialize it to JSON
+                return JsonSerializer.Serialize ( json, type ?? json.GetType ( ), new JsonSerializerOptions 
+                {
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+                    WriteIndented = true 
+                } );
+            }
 
-        public static string FormatJson ( object json )
-        {
-            return JsonSerializer.Serialize ( json, new JsonSerializerOptions { WriteIndented = true } );
+            return string.Empty;
         }
     }
 }
