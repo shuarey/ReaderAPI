@@ -1,6 +1,6 @@
 # ReaderAPI
 
-ReaderAPI is a .NET 8-based API designed to handle user account management and logging functionality. This guide will help you set up and run the project locally.
+ReaderAPI is a .NET 8-based API designed to handle user account management, logging functionality and maybe some other future mysterious features. This guide will help you set up and run the project locally.
 
 ---
 
