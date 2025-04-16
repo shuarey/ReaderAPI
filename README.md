@@ -4,10 +4,6 @@ ReaderAPI is a .NET 8-based API designed to handle user account management and l
 
 ---
 
-## Notes
-
-Logging is a WIP. Currently the json configuration defines two routes for logging, but at the moment, all logs are written in both because the Enricher is not being defined properly.
-
 ## Prerequisites
 
 Before you begin, ensure you have the following installed on your system:

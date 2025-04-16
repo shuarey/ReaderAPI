@@ -1,8 +1,11 @@
 ﻿using System.Net;
+using System.Runtime.CompilerServices;
 using Dapper;
+using Microsoft.AspNetCore.Http.Extensions;
 using ReaderAPI.Infrastructure;
 using ReaderAPI.Middleware;
 using ReaderAPI.Models;
+using Serilog.Context;
 using static ReaderAPI.Models.BaseClasses;
 
 namespace ReaderAPI.Services
@@ -36,20 +39,19 @@ namespace ReaderAPI.Services
 
         public BaseResponse LoginUser ( AccountUserLoginPOSTRequest request )
         {
-            //var logger = GetCustomLogger ( LoggingCategory.AccountUserLogin );
-
             AccountUser user = null;
             BasicErrorResponse errorResponse = null;
             try
             {
-                //validation of properties will happen on the client side application
                 errorResponse = GetUserLoginID ( request.email, ref user, request.password );
                 if ( errorResponse != null )
                     return errorResponse;
 
-                request.password = null;
                 if ( user == null )
                     return new BasicErrorResponse ( "User not found.", HttpStatusCode.InternalServerError );
+
+
+                string absolutePath = new Uri ( Context.HttpContext.Request.GetDisplayUrl ( ) ).AbsolutePath;
 
                 return new AccountUserPOSTResponse
                 {
@@ -88,8 +90,6 @@ namespace ReaderAPI.Services
 
         public BaseResponse RegisterAccountUser ( AccountUserRegisterPOSTRequest request )
         {
-            //GetCustomLogger ( LoggingCategory.AccountUserRegister );
-
             try
             {
                 BasicErrorResponse response = null;

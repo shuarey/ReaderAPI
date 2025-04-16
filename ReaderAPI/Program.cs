@@ -15,6 +15,18 @@ builder.Services.AddHttpContextAccessor ( );
 Log.Logger = new LoggerConfiguration ( )
     .ReadFrom.Configuration ( builder.Configuration )
     .Enrich.FromLogContext ( )
+    .WriteTo.Console ( )
+    .WriteTo.Map ( 
+        "FilePath",
+        "default",
+        ( filePath, wt ) => {
+            wt.File (
+                path: $"C:/Reader/Logs{filePath}/.log",
+                rollingInterval: RollingInterval.Hour,
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+            );
+        }
+    )
     .CreateLogger ( );
 
 builder.Host.UseSerilog ( );
