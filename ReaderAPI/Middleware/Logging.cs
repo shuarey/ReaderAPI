@@ -60,8 +60,6 @@ namespace ReaderAPI.Middleware
                 stopWatch.Stop ( );
                 var elapsedMs = stopWatch.ElapsedMilliseconds;
 
-                string sourceContext = context.Request.Path.StartsWithSegments ( "/api/accountuser/login" ) ? "AccountUserLogin" : context.Request.Path.StartsWithSegments ( "/api/accountuser/register" ) ? "AccountUserRegister" : "Default";
-
                 _logger.LogInformation (
                     "\n{Protocol} {Method} {Path} in {ElapsedTime}ms\nHost: {Host}\nAccept: {Accept}\nAccept-Encoding: {AcceptEncoding}\nContent-Type: {ContentType}\nContent-Length: {ContentLength}\nRequest body:\n{RequestBody}\n\n{Protocol} Response status: {ResponseStatus} {ResponseCode}\nContent-Type: {ResponseContentType}\nResponse body: \n{ResponseBody}\n",
                     context.Request.Protocol,
