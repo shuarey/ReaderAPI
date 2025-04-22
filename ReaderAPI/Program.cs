@@ -11,6 +11,17 @@ builder.Services.AddControllers ( );
 builder.Services.AddEndpointsApiExplorer ( );
 builder.Services.AddSwaggerGen ( );
 builder.Services.AddHttpContextAccessor ( );
+builder.Services.AddCors ( options =>
+{
+    // using this just for dev purposes. Will eventually only accept calls from verified servers
+    options.AddPolicy ( "AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin ( )
+                   .AllowAnyMethod ( )
+                   .AllowAnyHeader ( );
+        } );
+} );
 
 Log.Logger = new LoggerConfiguration ( )
     .ReadFrom.Configuration ( builder.Configuration )
@@ -39,18 +50,6 @@ builder.Services.Configure<ApiBehaviorOptions> ( options =>
 } );
 
 builder.Services.AddSingleton<ITypeResolver, TypeResolver> ( );
-builder.Services.AddCors ( options =>
-{
-    // using this just for dev purposes. Will eventually only accept calls from verified servers
-    options.AddPolicy ( "AllowAllOrigins",
-        builder =>
-        {
-            builder.AllowAnyOrigin ( )
-                   .AllowAnyMethod ( )
-                   .AllowAnyHeader ( );
-        } );
-} );
-
 builder.Services.AddScoped<IDatabaseConnection, DBConnectionService> ( );
 builder.Services.AddScoped<AccountUserService> ( );
 
@@ -67,11 +66,9 @@ if ( app.Environment.IsDevelopment ( ) )
     } );
 }
 
-app.UseMiddleware<Logging> ( );
-
 // This is just for development purposes. Will eventually only allow calls from hosting server
 app.UseCors ( "AllowAllOrigins" );
-
+app.UseMiddleware<Logging> ( );
 app.UseHttpsRedirection ( );
 
 app.UseAuthorization ( );

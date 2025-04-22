@@ -1,11 +1,8 @@
 ﻿using System.Net;
-using System.Runtime.CompilerServices;
 using Dapper;
 using Microsoft.AspNetCore.Http.Extensions;
 using ReaderAPI.Infrastructure;
-using ReaderAPI.Middleware;
 using ReaderAPI.Models;
-using Serilog.Context;
 using static ReaderAPI.Models.BaseClasses;
 
 namespace ReaderAPI.Services
@@ -20,9 +17,6 @@ namespace ReaderAPI.Services
                 typeof ( AccountUser ), ( type, columnName ) =>
                     type.GetProperties ( ).FirstOrDefault ( prop =>
                         prop.Name.Equals ( columnName, StringComparison.OrdinalIgnoreCase ) || 
-                          ( columnName == "FIRST_NAME" && prop.Name == "FirstName" ) || 
-                          ( columnName == "LAST_NAME" && prop.Name == "LastName" ) || 
-                          ( columnName == "FULL_NAME" && prop.Name == "FullName" ) ||
                           ( columnName == "ACCT_LOCK_TS" && prop.Name == "LockedTimestamp" ) )
             ) );
 
@@ -57,9 +51,7 @@ namespace ReaderAPI.Services
                 {
                     success = true,
                     message = "Login successful",
-                    id = user.ID,
-                    first_name = user.FirstName,
-                    last_name = user.LastName
+                    id = user.ID
                 };
             }
             catch ( Exception ex )
@@ -83,7 +75,7 @@ namespace ReaderAPI.Services
                         IPAddress = IPAddress
                     };
 
-                    Connection.Execute ( query, parameters );
+                    DBConnection.Execute ( query, parameters );
                 }
             }
         }
@@ -102,15 +94,13 @@ namespace ReaderAPI.Services
                 if ( user != null )
                     return new BasicErrorResponse ( "email already associated with existing account.", HttpStatusCode.Conflict );
 
-                var query = @"INSERT INTO ACCOUNT_USER (ID, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, CREATE_TS)
-                            VALUES (@ID, @FirstName, @LastName, @Email, @Password, @CreateTs)";
+                var query = @"INSERT INTO ACCOUNT_USER (ID, EMAIL, PASSWORD, CREATE_TS)
+                            VALUES (@ID, @Email, @Password, @CreateTs)";
 
                 var passwordHash = BCrypt.Net.BCrypt.HashPassword ( request.password );
                 var parameters = new
                 {
                     ID = Guid.NewGuid ( ).ToString ( ),
-                    FirstName = request.first_name,
-                    LastName = request.last_name,
                     Email = request.email,
                     Password = passwordHash,
                     CreateTs = DateTime.UtcNow
@@ -118,7 +108,7 @@ namespace ReaderAPI.Services
                 accountUserID = parameters.ID;
 
                 // Execute the query
-                Connection.Execute ( query, parameters );
+                DBConnection.Execute ( query, parameters );
 
                 return new AccountUserPOSTResponse { id = accountUserID, success = true, message = "success" };
             }
@@ -133,7 +123,7 @@ namespace ReaderAPI.Services
             var query = "SELECT * FROM ACCOUNT_USER WHERE EMAIL = @Email";
             var dictFieldValue = new Dictionary<string, object> { { "Email", email } };
 
-            user = Connection.QueryFirstOrDefault<AccountUser> ( query, dictFieldValue );
+            user = DBConnection.QueryFirstOrDefault<AccountUser> ( query, dictFieldValue );
             if ( user != null )
             {
                 if ( !string.IsNullOrEmpty ( password ) )
@@ -141,13 +131,13 @@ namespace ReaderAPI.Services
                     var isValid = BCrypt.Net.BCrypt.Verify ( password, user.Password );
                     if ( !isValid )
                     {
-                        var loginAttempts = Connection.Query<int> (
+                        var loginAttempts = DBConnection.Query<int> (
                             "SELECT COUNT(*) FROM LOGIN_HISTORY WHERE ACCT_USER_ID = @AcctUserID AND IS_SUCCESSFUL = 0 AND LOGIN_TIMESTAMP > DATEADD(HOUR, -1, GETUTCDATE())",
                             new { AcctUserID = user.ID } ).FirstOrDefault ( );
 
                         if ( loginAttempts >= 5 )
                         {
-                            Connection.Execute (
+                            DBConnection.Execute (
                                 "UPDATE ACCOUNT_USER SET ACCT_LOCK_TS = @LockTs WHERE ID = @AcctUserID",
                                 new { LockTs = DateTime.UtcNow, AcctUserID = user.ID } );
 
@@ -162,7 +152,7 @@ namespace ReaderAPI.Services
                         if ( lockDuration.TotalMinutes < 60 )
                             return new BasicErrorResponse ( "Account locked. Please try again later.", HttpStatusCode.Forbidden );
                         else
-                            Connection.Execute (
+                            DBConnection.Execute (
                                 "UPDATE ACCOUNT_USER SET ACCT_LOCK_TS = NULL WHERE ID = @AcctUserID",
                                 new { AcctUserID = user.ID } );
                     }

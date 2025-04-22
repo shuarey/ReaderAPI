@@ -4,13 +4,12 @@ namespace ReaderAPI.Utilities
 {
     public static class Utility
     {
-        public static string FormatJson ( object json, Type type = null )
+        public static string FormatJson ( object json, Type? type = null )
         {
             if ( json is string jsonString )
             {
-                // If the input is already a JSON string, format it
                 var jsonElement = JsonSerializer.Deserialize<JsonElement> ( jsonString );
-                return JsonSerializer.Serialize ( jsonElement, new JsonSerializerOptions 
+                return JsonSerializer.Serialize ( jsonElement, new JsonSerializerOptions
                 { 
                     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault, 
                     WriteIndented = true 

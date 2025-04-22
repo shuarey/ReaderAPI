@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using ReaderAPI.Infrastructure;
-using ReaderAPI.Middleware;
 
 namespace ReaderAPI.Services
 {
@@ -17,7 +16,7 @@ namespace ReaderAPI.Services
             _logger = logger;
         }
 
-        protected IDbConnection Connection => _connection;
+        protected IDbConnection DBConnection => _connection;
         protected IHttpContextAccessor Context => _context;
 
         public void Dispose ( )
