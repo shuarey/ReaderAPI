@@ -8,6 +8,9 @@ namespace ReaderAPI.Utilities
         {
             if ( json is string jsonString )
             {
+                if ( string.IsNullOrEmpty ( jsonString ) )
+                    return string.Empty;
+
                 var jsonElement = JsonSerializer.Deserialize<JsonElement> ( jsonString );
                 return JsonSerializer.Serialize ( jsonElement, new JsonSerializerOptions
                 { 
