@@ -6,32 +6,47 @@ using ReaderAPI.Middleware;
 using ReaderAPI.Services;
 
 var builder = WebApplication.CreateBuilder ( args );
-Console.WriteLine ( "Starting application" );
+Console.WriteLine ( "Starting application..." );
 
+// Add controllers
 builder.Services.AddControllers ( );
+Console.WriteLine ( "Added controllers." );
+
+// Add API explorer for endpoints
 builder.Services.AddEndpointsApiExplorer ( );
+Console.WriteLine ( "Added endpoints API explorer." );
+
+// Add Swagger for API documentation
 builder.Services.AddSwaggerGen ( );
+Console.WriteLine ( "Added Swagger for API documentation." );
+
+// Add HttpContextAccessor
 builder.Services.AddHttpContextAccessor ( );
+Console.WriteLine ( "Added HttpContextAccessor." );
+
+// Configure CORS
 builder.Services.AddCors ( options =>
 {
-    // using this just for dev purposes. Will eventually only accept calls from verified servers
-    options.AddPolicy ( "AllowAllOrigins",
-        builder =>
-        {
-            builder.AllowAnyOrigin ( )
-                   .AllowAnyMethod ( )
-                   .AllowAnyHeader ( );
-        } );
+    Console.WriteLine ( "Configuring CORS policy..." );
+    options.AddPolicy ( "AllowAllOrigins", builder =>
+    {
+        builder.AllowAnyOrigin ( )
+               .AllowAnyMethod ( )
+               .AllowAnyHeader ( );
+    } );
+    Console.WriteLine ( "CORS policy 'AllowAllOrigins' configured." );
 } );
 
+// Configure Serilog
 Log.Logger = new LoggerConfiguration ( )
     .ReadFrom.Configuration ( builder.Configuration )
     .Enrich.FromLogContext ( )
     .WriteTo.Console ( )
-    .WriteTo.Map ( 
+    .WriteTo.Map (
         "FilePath",
         "default",
-        ( filePath, wt ) => {
+        ( filePath, wt ) =>
+        {
             wt.File (
                 path: $"C:/Reader/Logs{filePath}/.log",
                 rollingInterval: RollingInterval.Hour,
@@ -40,39 +55,71 @@ Log.Logger = new LoggerConfiguration ( )
         }
     )
     .CreateLogger ( );
+Console.WriteLine ( "Configured Serilog logging." );
 
+// Use Serilog as the logging provider
 builder.Host.UseSerilog ( );
+Console.WriteLine ( "Serilog set as the logging provider." );
 
-// disabling default field validation. Endpoints will handle field validation on an individual level
-// TODO: Build middleware to handle custom error response.
+// Configure API behavior
 builder.Services.Configure<ApiBehaviorOptions> ( options =>
 {
     options.SuppressModelStateInvalidFilter = true;
 } );
+Console.WriteLine ( "Configured API behavior to suppress model state invalid filter." );
 
+// Register services
 builder.Services.AddSingleton<ITypeResolver, TypeResolver> ( );
+Console.WriteLine ( "Registered ITypeResolver as a singleton." );
+
 builder.Services.AddScoped<IDatabaseConnection, DBConnectionService> ( );
+Console.WriteLine ( "Registered IDatabaseConnection as a scoped service." );
+
 builder.Services.AddScoped<AccountUserService> ( );
+Console.WriteLine ( "Registered AccountUserService as a scoped service." );
 
+// Build the application
 var app = builder.Build ( );
+Console.WriteLine ( "Application built successfully." );
 
+// Configure middleware for development environment
 if ( app.Environment.IsDevelopment ( ) )
 {
+    Console.WriteLine ( "Configuring development environment..." );
     app.UseSwagger ( );
+    Console.WriteLine ( "Swagger enabled." );
+
     app.UseSwaggerUI ( );
+    Console.WriteLine ( "Swagger UI enabled." );
+
     app.UseForwardedHeaders ( new ForwardedHeadersOptions
     {
         ForwardedHeaders = ForwardedHeaders.XForwardedFor,
         ForwardLimit = 1 // Only trust the first forwarded header
     } );
+    Console.WriteLine ( "Forwarded headers configured." );
 }
 
-// This is just for development purposes. Will eventually only allow calls from hosting server
+// Configure CORS middleware
 app.UseCors ( "AllowAllOrigins" );
+Console.WriteLine ( "CORS middleware applied." );
+
+// Add custom logging middleware
 app.UseMiddleware<Logging> ( );
+Console.WriteLine ( "Custom logging middleware added." );
+
+// Enable HTTPS redirection
 app.UseHttpsRedirection ( );
+Console.WriteLine ( "HTTPS redirection enabled." );
 
+// Enable authorization
 app.UseAuthorization ( );
-app.MapControllers ( );
+Console.WriteLine ( "Authorization middleware applied." );
 
+// Map controllers
+app.MapControllers ( );
+Console.WriteLine ( "Controllers mapped." );
+
+// Run the application
 app.Run ( );
+Console.WriteLine ( "Application is running." );
