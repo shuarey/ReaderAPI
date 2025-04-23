@@ -6,6 +6,7 @@ using ReaderAPI.Middleware;
 using ReaderAPI.Services;
 
 var builder = WebApplication.CreateBuilder ( args );
+Console.WriteLine ( "Starting application" );
 
 builder.Services.AddControllers ( );
 builder.Services.AddEndpointsApiExplorer ( );

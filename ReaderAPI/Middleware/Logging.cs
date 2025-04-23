@@ -82,10 +82,4 @@ namespace ReaderAPI.Middleware
             }
         }
     }
-
-    public enum LoggingCategory
-    {
-        AccountUserLogin,
-        AccountUserRegister
-    }
 }
