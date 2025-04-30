@@ -5,7 +5,7 @@ using ReaderAPI.Services;
 namespace ReaderAPI.Controllers
 {
     [ApiController]
-    [Route ( "api/[controller]" )]
+    [Route ( "[controller]" )]
     public class AccountUserController : ControllerBase
     {
         private readonly AccountUserService _AccountUserService;

@@ -9,7 +9,7 @@ namespace ReaderAPI.Services
 {
     public class AccountUserService : BaseService
     {
-        public AccountUserService ( IHttpContextAccessor context, IDatabaseConnection connection, ILogger<AccountUserService> logger, ILoggerFactory loggerFactory ) : base ( context, connection, logger, loggerFactory ) { }
+        public AccountUserService ( IHttpContextAccessor context, IDatabaseConnection connection, ILogger<AccountUserService> logger ) : base ( context, connection, logger ) { }
 
         static AccountUserService ( )
         {
@@ -43,7 +43,6 @@ namespace ReaderAPI.Services
 
                 if ( user == null )
                     return new BasicErrorResponse ( "User not found.", HttpStatusCode.InternalServerError );
-
 
                 string absolutePath = new Uri ( Context.HttpContext.Request.GetDisplayUrl ( ) ).AbsolutePath;
 
@@ -84,8 +83,6 @@ namespace ReaderAPI.Services
         {
             try
             {
-                ////for testing IIS
-                //return new AccountUserPOSTResponse { id = "18302783947823", success = true, message = "success" };
                 BasicErrorResponse response = null;
                 AccountUser user = null;
                 string accountUserID = string.Empty;
@@ -112,7 +109,12 @@ namespace ReaderAPI.Services
                 // Execute the query
                 DBConnection.Execute ( query, parameters );
 
-                return new AccountUserPOSTResponse { id = accountUserID, success = true, message = "success" };
+                return new AccountUserPOSTResponse
+                {
+                    success = true,
+                    message = "success",
+                    id = accountUserID
+                };
             }
             catch ( Exception ex )
             {
@@ -134,7 +136,7 @@ namespace ReaderAPI.Services
                     if ( !isValid )
                     {
                         var loginAttempts = DBConnection.Query<int> (
-                            "SELECT COUNT(*) FROM LOGIN_HISTORY WHERE ACCT_USER_ID = @AcctUserID AND IS_SUCCESSFUL = 0 AND LOGIN_TIMESTAMP > DATEADD(HOUR, -1, GETUTCDATE())",
+                            "SELECT COUNT(*) FROM LOGIN_HISTORY WHERE ACCT_USER_ID = @AcctUserID AND IS_SUCCESSFUL = 0 AND LOGIN_TIMESTAMP > DATEADD(MINUTE, -10, GETUTCDATE())",
                             new { AcctUserID = user.ID } ).FirstOrDefault ( );
 
                         if ( loginAttempts >= 5 )
@@ -151,7 +153,7 @@ namespace ReaderAPI.Services
                     if ( user.LockedTimestamp != DateTime.MinValue )
                     {
                         var lockDuration = DateTime.UtcNow - user.LockedTimestamp;
-                        if ( lockDuration.TotalMinutes < 60 )
+                        if ( lockDuration.TotalMinutes < 10 )
                             return new BasicErrorResponse ( "Account locked. Please try again later.", HttpStatusCode.Forbidden );
                         else
                             DBConnection.Execute (

@@ -12,14 +12,14 @@ namespace ReaderAPI.Services
     {
         private readonly Dictionary<string, Type> _requestTypeMap = new ( )
         {
-           { "/api/accountuser/login", typeof ( AccountUserLoginPOSTRequest ) },
-           { "/api/accountuser/register", typeof ( AccountUserRegisterPOSTRequest ) }
+           { "/accountuser/login", typeof ( AccountUserLoginPOSTRequest ) },
+           { "/accountuser/register", typeof ( AccountUserRegisterPOSTRequest ) }
         };
 
         private readonly Dictionary<string, Type> _responseTypeMap = new ( )
         {
-           { "/api/accountuser/login", typeof ( AccountUserPOSTResponse ) },
-           { "/api/accountuser/register", typeof ( AccountUserPOSTResponse ) }
+           { "/accountuser/login", typeof ( AccountUserPOSTResponse ) },
+           { "/accountuser/register", typeof ( AccountUserPOSTResponse ) }
         };
 
         public Type GetRequestType ( string path ) => _requestTypeMap.GetValueOrDefault ( path );

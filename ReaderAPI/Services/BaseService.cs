@@ -9,7 +9,7 @@ namespace ReaderAPI.Services
         private readonly IHttpContextAccessor _context;
         private readonly ILogger _logger;
 
-        public BaseService ( IHttpContextAccessor context, IDatabaseConnection dbConnexService, ILogger logger, ILoggerFactory loggerFactory )
+        public BaseService ( IHttpContextAccessor context, IDatabaseConnection dbConnexService, ILogger logger )
         {
             _connection = dbConnexService.GetConnection ( );
             _context = context;

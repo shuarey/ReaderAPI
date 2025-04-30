@@ -34,6 +34,7 @@ namespace ReaderAPI.Models
     public class AccountUserPOSTResponse : BaseResponse
     {
         public string id { get; set; }
+        public string full_name { get; set; }
     }
     #endregion
 }
