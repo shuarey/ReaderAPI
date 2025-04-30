@@ -84,8 +84,8 @@ namespace ReaderAPI.Services
         {
             try
             {
-                //for testing IIS
-                return new AccountUserPOSTResponse { id = "18302783947823", success = true, message = "success" };
+                ////for testing IIS
+                //return new AccountUserPOSTResponse { id = "18302783947823", success = true, message = "success" };
                 BasicErrorResponse response = null;
                 AccountUser user = null;
                 string accountUserID = string.Empty;
