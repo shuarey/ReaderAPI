@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ReaderAPI.Models;
 using ReaderAPI.Services;
+using static ReaderAPI.Models.RequestClasses;
 
 namespace ReaderAPI.Controllers
 {

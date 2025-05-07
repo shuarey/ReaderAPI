@@ -1,9 +1,10 @@
 ﻿using System.Net;
 using Dapper;
-using Microsoft.AspNetCore.Http.Extensions;
 using ReaderAPI.Infrastructure;
 using ReaderAPI.Models;
 using static ReaderAPI.Models.BaseClasses;
+using static ReaderAPI.Models.RequestClasses;
+using static ReaderAPI.Models.ResponseClasses;
 
 namespace ReaderAPI.Services
 {
@@ -44,13 +45,13 @@ namespace ReaderAPI.Services
                 if ( user == null )
                     return new BasicErrorResponse ( "User not found.", HttpStatusCode.InternalServerError );
 
-                string absolutePath = new Uri ( Context.HttpContext.Request.GetDisplayUrl ( ) ).AbsolutePath;
-
+                string userName = ( user.FirstName + " " + user.LastName ).Trim ( );
                 return new AccountUserPOSTResponse
                 {
                     success = true,
                     message = "Login successful",
-                    id = user.ID
+                    id = user.ID,
+                    user_name = string.IsNullOrEmpty ( userName ) ? null : userName
                 };
             }
             catch ( Exception ex )
