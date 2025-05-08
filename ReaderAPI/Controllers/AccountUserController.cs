@@ -26,5 +26,17 @@ namespace ReaderAPI.Controllers
         {
             return _AccountUserService.RegisterAccountUser ( request );
         }
+
+        [HttpGet]
+        public IActionResult GetAccountUser ( [FromQuery] string user_id )
+        {
+            return _AccountUserService.GetAccountUser ( user_id );
+        }
+
+        [HttpPut]
+        public IActionResult UpdateAccountUser ( [FromBody] AccountUserPUTRequest request )
+        {
+            return _AccountUserService.UpdateAccountUser ( request );
+        }
     }
 }

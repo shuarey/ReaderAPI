@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Dapper;
+using Microsoft.AspNetCore.Mvc;
 using ReaderAPI.Infrastructure;
 using ReaderAPI.Models;
 using static ReaderAPI.Models.BaseClasses;
@@ -18,7 +19,9 @@ namespace ReaderAPI.Services
                 typeof ( AccountUser ), ( type, columnName ) =>
                     type.GetProperties ( ).FirstOrDefault ( prop =>
                         prop.Name.Equals ( columnName, StringComparison.OrdinalIgnoreCase ) || 
-                          ( columnName == "ACCT_LOCK_TS" && prop.Name == "LockedTimestamp" ) )
+                          ( columnName == "ACCT_LOCK_TS" && prop.Name == "LockedTimestamp" ) ||
+                          ( columnName == "FIRST_NAME" && prop.Name == "FirstName" ) ||
+                          ( columnName == "LAST_NAME" && prop.Name == "LastName" ) )
             ) );
 
             SqlMapper.SetTypeMap ( typeof ( Login ), new CustomPropertyTypeMap (
@@ -30,6 +33,30 @@ namespace ReaderAPI.Services
                           ( columnName == "IS_SUCCESSFUL" && prop.Name == "IsSuccessful" ) ||
                           ( columnName == "IP_ADDRESS" && prop.Name == "IPAddress" ) )
             ) );
+        }
+
+        public IActionResult GetAccountUser ( string userID )
+        {
+            try
+            {
+                var query = "SELECT * FROM ACCOUNT_USER WHERE ID = @ID";
+                var dictFieldValue = new Dictionary<string, object> { { "ID", userID } };
+
+                AccountUser user = DBConnection.QueryFirstOrDefault<AccountUser> ( query, dictFieldValue );
+                if ( user != null )
+                    return new AccountUserGETResponse { success = true, message = "success", first_name = user.FirstName, last_name = user.LastName, email = user.Email };
+                else
+                    return new BasicErrorResponse ( "Error querying AccountUser table", HttpStatusCode.InternalServerError );
+            }
+            catch ( Exception ex )
+            {
+                return new BasicErrorResponse ( ex.Message, HttpStatusCode.InternalServerError );
+            }
+        }
+
+        internal IActionResult UpdateAccountUser ( AccountUserPUTRequest request )
+        {
+            throw new NotImplementedException ( );
         }
 
         public BaseResponse LoginUser ( AccountUserLoginPOSTRequest request )
